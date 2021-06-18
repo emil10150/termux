@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+
+pause(){
+echo
+read -s -n 2 -p "Press any key to continue..."
+echo
+}
+
+#Setup repository and upgrade packages:
+echo -e "\nRemoving useless repositories:\n"
+pkg rm -y science-repo game-repo
+echo -e "\nUpgrading packages:\n"
+pkg up -y -o Dpkg::Options::="--force-confnew"
+apt update;apt install -y \
+termux-auth dnsutils wget unzip bash-completion nano man curl git
+
+
+
+echo -e "\n========================================"
+#Dns config for dnsutils (cloudflare dns):
+echo -e "nameserver 1.1.1.1\nnameserver 1.0.0.1" >$PREFIX/etc/resolv.conf
+#note: termux uses phone dns.
+echo -e "Nameservers have been successfully set."
+
+#Buttons configuration:
+mkdir ~/.termux&>/dev/null;echo -e "extra-keys = [['ESC','/','-','HOME','UP','END','PGUP'],['TAB','CTRL','ALT','LEFT','DOWN','RIGHT','PGDN']]\nuse-black-ui = true">~/.termux/termux.properties
+termux-reload-settings
+echo -e "Buttons configuration was successfully set."
+
+
+#Bash config:
+cd termux_conf
+cp bashrc ~/.bashrc
+cp bash.bashrc $PREFIX/etc/bash.bashrc
+cp dircolors $PREFIX/etc/dircolors
+cp adbtool $PREFIX/bin
+
+#
+mkdir -p ~/bin;rm -f ~/bin/termux-file-editor
+ln -s $PREFIX/bin/nano ~/bin/termux-file-editor
+cp termux-url-opener $HOME/bin/termux-url-opener
+#
+
+#
+cd ->/dev/null
+echo -e "Bash configuration was successfully set."
+#
+
+#Load bash config:
+source $PREFIX/etc/bash.bashrc
+source ~/.bashrc
+cd ->/dev/null
+echo -e "========================================"
+
+#Font config:
+echo -e "\nInstalling custom font \"Hack\":";
+#pkg i -y wget unzip;
+cd $PREFIX/tmp; wget https://github.com/source-foundry/Hack/releases/download/v3.003/Hack-v3.003-ttf.zip --show-progress -qO Hack_font.zip;unzip -oq Hack_font.zip;mkdir ~/.termux&>/dev/null;mv ttf/Hack-Regular.ttf ~/.termux/font.ttf;rm -r ttf Hack_font.zip;
+termux-reload-settings;cd ->/dev/null;
+
+pause
+#Termux storage access, enable `open with termux`
+printf "\nSETUP TERMUX STORAGE ACCESS:"
+rm -rf ~/storage
+termux-setup-storage;sleep 6
+storagedir="$HOME/storage/"
+if [ -d "$storagedir" ]; then
+	echo -e "\nLinking /storage/emulated/0 to \$HOME/emulated0.";
+	rm -rf ~/storage;rm -f ~/emulated0;
+	ln -s /storage/emulated/0 ~/emulated0;
+	sleep 2;
+else echo -e "\nSkipping Termux storage access..";rm -rf ~/bin ~/emulated0;
+fi
+
+#Termux wake lock
+printf "\nTERMUX WAKE LOCK:"
+termux-wake-lock
+sleep 5
+echo
+
+#Update shell password:
+shellpasswd(){
+read -p "New password: " -s shellpass1;echo;
+read -p "Retype new password: " -s shellpass2;
+if [ "$shellpass1" == "$shellpass2" ]; then echo -e "$shellpass1\n$shellpass2"|passwd&>/dev/null;echo -e "\nNew password was successfully set.";
+else echo -e "\nSorry, passwords do not match.\n";shellpasswd;
+fi
+}
+echo -e "\nSHELL PASSWORD:\n";shellpasswd;echo
+
+
+#Stable packages:
+echo -e "Installing stable packages:\n"
+
+apt update;apt install -y \
+proot tmux openssh mariadb \
+python php jq golang pv openssl openssl-tool \
+bsdtar unrar p7zip zip unzip \
+cmatrix pwgen tree \
+nmap-ncat nmap \
+weechat weechat-python-plugin proxychains-ng tor \
+megatools aria2 \
+mpv android-tools
+
+#Python modules:
+echo -e "\nInstalling pip modules:\n"
+pip install --upgrade pip;echo;
+pip install youtube-dl;
+
+#Mysql/PhpMyAdmin Config:
+
+#######################
+mysqlpasswd(){
+read -p "New MySQL password for root user: " -s mysqlpass1;echo;
+read -p "Retype New MySQL password for root user: " -s mysqlpass2;
+if [ "$mysqlpass1" == "$mysqlpass2" ]; then echo -e "\nNew MySQL password for root user was successfully set."
+else echo -e "\nSorry, passwords do not match.\n";mysqlpasswd
+fi
+}
+echo -e "\nMYSQL ROOT PASSWORD:\n";mysqlpasswd;echo;
+pkill -9 mysqld;
+sh -c "mysqld& sleep 3"&>/dev/null;
+mysql --execute="use mysql;set password for 'root'@'localhost' = password('$mysqlpass1');flush privileges;GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.%' IDENTIFIED BY '$mysqlpass1' WITH GRANT OPTION;"
+pkill -9 mysqld;
+#######################
+
+#PhpMyAdmin:
+echo -e "Installing PhpMyAdmin:";
+mkdir $PREFIX/opt&>/dev/null;cd $PREFIX/opt;rm -rf phpmyadmin;wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.zip --show-progress -qO myadm.zip;unzip -q myadm.zip;rm myadm.zip;mv phpMyAdmin-* phpmyadmin;cd ->/dev/null;cd $PREFIX/opt/phpmyadmin;sed -i 's/localhost/localhost:3306/g' config.sample.inc.php;mv config.sample.inc.php config.inc.php;cd ->/dev/null;
+
+
+#Dnsleaktest:
+echo -e "\nInstalling Dnsleaktest:";
+#pkg i -y wget python3;
+wget https://raw.githubusercontent.com/macvk/dnsleaktest/master/dnsleaktest.py --show-progress -qO $PREFIX/bin/dnsleaktest;chmod +x $PREFIX/bin/dnsleaktest;
+
+
+#Ngrok:
+echo -e "\nInstalling Ngrok";
+#pkg i -y wget;
+cd $PREFIX/tmp;wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm64.tgz --show-progress -qO ngrok.tgz;tar zxf ngrok.tgz -C $PREFIX/bin/;rm -r ngrok.tgz;cd ->/dev/null;
+
+#####
+apt clean
+#####
+termux-reload-settings
+#####
+echo
+termux-wake-unlock
+#######################

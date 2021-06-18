@@ -1,0 +1,34 @@
+#!/bin/bash
+url=$1
+tdl=$HOME/emulated0/termux-download/
+mkdir -p $tdl
+echo -e "\nWhat should I do with this url?\n\n\e[32m$url\e[0m\n"
+echo "y) Download youtube video using youtube-dl"
+echo "w) Download file using wget"
+echo "t) Download torrent/magnet link using aria2c"
+echo "g) Download git repository using git"
+echo "m) Download mega.nz files using megatools"
+printf "\n->"
+read CHOICE
+case $CHOICE in
+    y)
+	cd $tdl
+        youtube-dl -f 'bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4][height<=1080]' $url
+	;;
+    w)
+	cd $tdl
+	wget $url
+	;;
+    t)
+	aria2c --file-allocation=none "$url" --dir=$tdl
+	;;
+    g)
+	cd $tdl
+	git clone $url
+	;;
+    m)
+	cd $tdl
+	megadl $url
+	;;
+esac
+

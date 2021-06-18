@@ -1,0 +1,9 @@
+echo -e "nameserver 1.1.1.1\nnameserver 1.0.0.1" >/etc/resolv.conf;
+rm -f /etc/yum.repos.d/fedora-*;
+yum install nano bash-completion man -y;
+mv ~/bashrc ~/.bashrc
+ln -s /data/data/com.termux/files/home/ $HOME/txhome
+ln -s /storage/emulated/0/ $HOME/emulated0
+echo -e "\nStart Fedora with 'startfedora' or 'fedora'.\n"
+exit
+

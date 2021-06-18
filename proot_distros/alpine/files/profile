@@ -1,0 +1,10 @@
+echo -e "nameserver 1.1.1.1\nnameserver 1.0.0.1" >/etc/resolv.conf
+
+apk upgrade
+apk add nano bash-completion bash curl
+
+ln -s /data/data/com.termux/files/home/ $HOME/txhome
+ln -s /storage/emulated/0/ $HOME/emulated0
+
+rm ~/.profile
+exit

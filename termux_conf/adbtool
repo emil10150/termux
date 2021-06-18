@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+pause(){
+ read -s -n 1 -p "Press any key to continue..."
+ echo
+}
+
+
+pkgkill(){
+echo
+read -p "<pkgkill> package name: " pkg;echo;pause
+echo
+adb shell cmd package install-existing --user 0 $pkg&>/dev/null
+adb shell am force-stop $pkg&>/dev/null
+adb shell pm uninstall $pkg&>/dev/null
+adb shell pm clear $pkg&>/dev/null
+adb shell pm disable-user $pkg&>/dev/null
+adb shell pm uninstall --user 0 $pkg
+echo -e "\nSelected: $pkg\n"
+}
+
+
+pkgredo(){
+echo
+read -p "<pkgredo> package name: " pkg;echo;pause
+echo
+adb shell cmd package install-existing --user 0 $pkg
+adb shell pm enable $pkg
+echo -e "\nSelected: $pkg\n"
+}
+
+pkglist(){
+echo -e "\nSYSTEM PACKAGES:\n"
+adb shell pm list packages -s| sort | sed "s/\bpackage:\b/ /g"
+echo -e "\nTHIRD-PARTY PACKAGES:\n"
+adb shell pm list packages -3| sort| sed "s/\bpackage:\b/ /g"
+echo -e "\nDISABLED PACKAGES:\n"
+adb shell pm list packages -d | sort | sed "s/\bpackage:\b/ /g"
+echo -e "\nHIDDEN DISABLED PACKAGES:\n"
+diff  --changed-group-format='%>' --unchanged-group-format='' <(adb shell pm list packages -d) <(adb shell pm list packages -d -u) | grep -v "^---" | grep -v "^[0-9c0-9]"|sed "s/\bpackage:\b/ /g"
+echo -e "\nKILLED/USER-UNINSTALLED PACKAGES:\n"
+diff  --changed-group-format='%>' --unchanged-group-format='' <(adb shell pm list packages|sort) <(adb shell pm list packages -u |sort) | grep -v "^---" | grep -v "^[0-9c0-9]"|sed "s/\bpackage:\b/ /g"
+echo
+}
+
+pkgdisable(){
+echo
+read -p "<pkgdisable> package name: " pkg;echo;pause
+echo
+adb shell pm disable-user $pkg
+echo -e "\nSelected: $pkg\n"
+}
+
+main(){
+clear
+echo -e "
+================ ADB TOOL ================
+
+[d] adb devices
+[k] adb kill-server
+
+[1] pkgkill
+[2] pkglist
+[3] pkgredo
+[4] pkgdisable
+
+[q] quit
+"
+printf "[x] Select an option: "
+read -r option
+case $option in
+	d)adb devices
+	read -s -n 1 -p "Give adb permissions..."
+	echo
+	echo
+	adb devices
+	pause
+	main
+	;;
+	k)adb kill-server&>/dev/null
+	main
+	;;
+	q)exit
+	;;
+	1)pkgkill
+	pause
+	main
+	;;
+
+	2)pkglist
+	pause
+	main
+	;;
+
+	3)pkgredo
+	pause
+	main
+	;;
+
+	4)pkgdisable
+	pause
+	main
+	;;
+
+	*)main
+	;;
+esac
+}
+
+main

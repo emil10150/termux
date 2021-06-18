@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+rm -rf $HOME/kali/
+rm -f $PREFIX/bin/kali

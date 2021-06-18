@@ -1,0 +1,39 @@
+###
+alias dd='dd status=progress'
+alias grep='grep --color=always'
+alias dir='dir --color=always'
+alias vdir='vdir --color=always'
+alias ls='ls --color=always -F'
+alias ll='ls -alhF'
+alias la='ls -aF'
+alias l.='ls -dF .* '
+shopt -s extglob
+shopt -s histappend
+###
+
+#TERMUX ALIASES:
+cd
+alias exit_="kill -9 -1"
+alias prefix='cd $PREFIX'
+alias sshd="sshd;termux-wake-lock"
+alias sshd_stop="pkill sshd"
+alias myip='ip -f inet --brief addr show wlan0;ip -f inet --brief addr show swlan0'
+alias ps="ps auxw"
+
+
+#PHPMYADMIN/MYSQL IN TERMUX:
+alias mysql_start='mysqld&sleep 1;echo;echo;mysql;pkill mysqld;sleep 1'
+
+alias myadmin_start='mysqld&php -S 0.0.0.0:8080 -t $PREFIX/opt/phpmyadmin/&alias bye="unalias bye;pkill php;pkill mysqld;sleep 2";sleep 1;echo -e "\nPhpMyAdmin server started at: 0.0.0.0:8080\n\nType \042bye\042 for close PhpMyAdmin.\n" '
+
+alias myadmin_update="mkdir $PREFIX/opt&>/dev/null;cd $PREFIX/opt;rm -rf phpmyadmin;wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.zip --show-progress -qO myadm.zip;unzip -q myadm.zip;rm myadm.zip;mv phpMyAdmin-* phpmyadmin;cd ->/dev/null;cd $PREFIX/opt/phpmyadmin;sed -i 's/localhost/localhost:3306/g' config.sample.inc.php;mv config.sample.inc.php config.inc.php;cd ->/dev/null;echo -e '\nPhpMyAdmin successfully updated.' "
+
+#PHP SERVER:
+alias phpserver="php -S 0.0.0.0:8888"
+
+#NGROK SSH/SFTP
+alias ngrok_sshd="sshd;ngrok tcp 8022;pkill sshd"
+
+#WEECHAT
+alias weechat_='read -p "weechat nickname>" weechat_nick;weechat -r "/server add freenode chat.freenode.net irc.freenode.net;/set irc.server_default.nicks "$weechat_nick";/set irc.server_default.username weechat;/set script.scripts.download_enabled on;/script install grep.py;/wait 4 /exit">/dev/null'
+

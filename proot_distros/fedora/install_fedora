@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#install termux-fedora
+apt update; apt install -y wget proot tar
+wget https://raw.githubusercontent.com/nmilosev/termux-fedora/master/termux-fedora.sh --show-progress -qO termux-fedora.sh
+echo
+sh termux-fedora.sh f33_arm64
+rm termux-fedora.sh
+ln -s $PREFIX/bin/startfedora $PREFIX/bin/fedora
+chmod +w ~/fedora/root/
+cp files/bashrc ~/fedora/root/
+cp files/run ~/fedora/root/.bashrc
+chmod -w ~/fedora/root/
+startfedora

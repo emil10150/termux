@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+apt update;apt install wget openssl-tool proot tar -y&&hash -r
+mkdir -p $HOME/kali
+
+cd $HOME/kali
+wget https://raw.githubusercontent.com/EXALAB/AnLinux-Resources/master/Scripts/Installer/Kali/kali.sh --show-progress -qO kali.sh
+echo
+bash kali.sh
+cd ->/dev/null
+cp files/bashrc $HOME/kali/kali-fs/root/.bashrc
+cp files/bash_login $HOME/kali/kali-fs/root/.bash_login
+cd ->/dev/null
+
+./start-kali.sh
+
+
+sed -i 's/\#command+=\" -b \/data\/data\/com.termux\/files\/home:\/root\"/command+=\" -b \/data\/data\/com.termux\/files\/home\"/g' $HOME/kali/start-kali.sh
+
+sed  -i 's/\#command+=\" -b \/sdcard\"/command+=\" -b \/storage\"/g' $HOME/kali/start-kali.sh
+
+
+#link kali
+echo -e "cd $HOME/kali; bash start-kali.sh;cd ->/dev/null"> $PREFIX/bin/kali
+chmod +x $PREFIX/bin/kali
+echo -e "\nDone.\nStart using \"kali\" command."
+

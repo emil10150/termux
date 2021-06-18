@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+apt update;apt install wget openssl-tool proot tar -y&&hash -r
+mkdir -p $HOME/alpine
+
+cd $HOME/alpine
+wget https://raw.githubusercontent.com/EXALAB/AnLinux-Resources/master/Scripts/Installer/Alpine/alpine.sh --show-progress -qO alpine.sh
+echo
+bash alpine.sh
+cd ->/dev/null
+cp files/bash_login $HOME/alpine/alpine-fs/root/.bash_login
+cp files/profile $HOME/alpine/alpine-fs/root/.profile
+cd ->/dev/null
+./start-alpine.sh
+
+sed  -i 's/command+=\" \/bin\/sh --login\"/command+=\" \/bin\/bash --login\"/g' $HOME/alpine/start-alpine.sh
+
+sed -i 's/\#command+=\" -b \/data\/data\/com.termux\/files\/home:\/root\"/command+=\" -b \/data\/data\/com.termux\/files\/home\"/g' $HOME/alpine/start-alpine.sh
+
+sed  -i 's/\#command+=\" -b \/sdcard\"/command+=\" -b \/storage\"/g' $HOME/alpine/start-alpine.sh
+
+
+#link alpine
+echo -e "cd $HOME/alpine; bash start-alpine.sh;cd ->/dev/null"> $PREFIX/bin/alpine
+chmod +x $PREFIX/bin/alpine
+echo -e "\nDone.\nStart using \"alpine\" command."
+

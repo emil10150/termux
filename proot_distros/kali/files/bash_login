@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+echo -e "nameserver 1.1.1.1\nnameserver 1.0.0.1" >/etc/resolv.conf
+
+gpg --keyserver \
+pool.sks-keyservers.net \
+--recv-key 7D8D0BF6
+
+gpg -a --export 7D8D0BF6 | apt-key add -
+gpgconf --kill dirmngr
+gpgconf --kill gpg-agent
+
+echo "deb https://http.kali.org/kali kali-rolling main non-free contrib" | tee /etc/apt/sources.list
+
+
+
+
+apt clean
+apt update&&apt install upgrade-system -y
+upgrade-system -y
+apt update&&apt install -y \
+nano bash-completion curl man \
+metasploit-framework python3-pip golang \
+theharvester sherlock spiderfoot
+
+apt clean
+
+pip install --upgrade pip
+pip install requests
+
+busybox --install
+
+ln -s /data/data/com.termux/files/home/ $HOME/txhome
+ln -s /storage/emulated/0/ $HOME/emulated0
+
+rm ~/.bash_login
+exit

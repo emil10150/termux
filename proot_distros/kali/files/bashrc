@@ -1,0 +1,27 @@
+cd
+###
+alias dd='dd status=progress'
+alias grep='grep --color=always'
+alias dir='dir --color=always'
+alias vdir='vdir --color=always'
+alias ls='ls --color=always -F'
+alias ll='ls -alhF'
+alias la='ls -aF'
+alias l.='ls -dF .* '
+shopt -s extglob
+shopt -s histappend
+###
+
+alias nmap="nmap --unprivileged"
+
+PS1="\[\033[1;37m\]\342\224\214\342\224\200\$([[ \$? != 0 ]] && echo \"[\[\033[1;31m\]X\[\033[1;37m\]]\342\224\200\")[$(if [[ ${EUID} == 0 ]]; then echo '\[\033[05;33m\]kali'; else echo '\[\033[1;32m\]\u\[\033[01;33m\]@\[\033[05;33m\]kali'; fi)\[\033[1;37m\]]\342\224\200\[\033[1;31m\][\[\033[1;36m\]\w\[\033[1;31m\]]\n\[\033[1;37m\]\342\224\224\342\224\200\342\224\200\[\033[0m\]\[\e[01;33m\]>\[\e[0m\]"
+PS1='$(printf "%$((COLUMNS-1))s\r")'$PS1
+
+# enable bash_completion:
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi

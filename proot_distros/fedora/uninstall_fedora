@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#uninstall termux-fedora
+chmod -R 777 ~/fedora &>/dev/null
+rm -rf ~/fedora $PREFIX/bin/startfedora $PREFIX/bin/fedora
